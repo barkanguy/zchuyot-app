@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="he">
 <head>
@@ -102,25 +103,26 @@
       document.getElementById('result').innerHTML = output;
     }
   </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-  async function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const resultHtml = document.getElementById("result").innerText;
-    const lines = resultHtml.split('
-');
-    let y = 10;
-    doc.setFont("helvetica", "normal");
-    lines.forEach(line => {
-      doc.text(line, 10, y);
-      y += 10;
-    });
-    doc.save("זכויות_למטופל.pdf");
-  }
-</script>
-<div style="text-align:center; margin-top: 20px;">
-  <button onclick="exportToPDF()">ייצא לפורמט PDF</button>
-</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    async function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const resultHtml = document.getElementById("result").innerText;
+      const lines = resultHtml.split('\n');
+      let y = 10;
+      doc.setFont("helvetica", "normal");
+      lines.forEach(line => {
+        doc.text(line, 10, y);
+        y += 10;
+      });
+      doc.save("זכויות_למטופל.pdf");
+    }
+  </script>
+
+  <div style="text-align:center; margin-top: 20px;">
+    <button onclick="exportToPDF()">ייצא לפורמט PDF</button>
+  </div>
 </body>
 </html>
