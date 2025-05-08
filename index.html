@@ -2,127 +2,62 @@
 <!DOCTYPE html>
 <html lang="he">
 <head>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#004d7a">
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('Service worker registered:', reg))
-          .catch(err => console.log('Service worker error:', err));
-      });
-    }
-  </script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>שאלון זכויות מותאם</title>
+  <title>שאלון זכויות עם PDF בעברית</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/polyfills.umd.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/fonts/Helvetica.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.plugin.standard_fonts_metrics.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.plugin.split_text_to_size.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.plugin.addimage.min.js"></script>
+
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/polyfills.umd.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.plugin.standard_fonts_metrics.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.plugin.split_text_to_size.min.js"></script>
+
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.plugin.ttf-support.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.plugin.addfont.min.js"></script>
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/fonts/gidole-normal.js"></script>
+
   <style>
-    body { font-family: sans-serif; direction: rtl; padding: 20px; background: #f0f4f8; }
-    h1 { text-align: center; color: #004d7a; }
-    .question { margin-bottom: 20px; background: #ffffff; padding: 15px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-    label { font-weight: bold; display: block; margin-bottom: 5px; }
-    select, input[type="checkbox"] { width: 100%; padding: 8px; margin-top: 5px; }
-    button { padding: 10px 20px; background-color: #004d7a; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
-    .result { margin-top: 30px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ccc; }
-    ul { padding-right: 20px; }
+    body { direction: rtl; font-family: sans-serif; padding: 20px; }
+    button { padding: 10px; font-size: 16px; }
+    #result { margin-top: 20px; white-space: pre-wrap; }
   </style>
 </head>
 <body>
-  <h1>שאלון לאיתור זכויות</h1>
-
-  <div class="question">
-    <label>1. גיל המטופל:</label>
-    <select id="age">
-      <option value="child">ילד (עד גיל 18)</option>
-      <option value="adult">בגיר (18–67)</option>
-      <option value="senior">מעל גיל פרישה</option>
-    </select>
-  </div>
-
-  <div class="question">
-    <label>2. מגבלה תפקודית:</label>
-    <select id="function">
-      <option value="full">תלוי בעזרה מלאה</option>
-      <option value="partial">תלוי חלקית</option>
-      <option value="none">אין מגבלה</option>
-    </select>
-  </div>
-
-  <div class="question">
-    <label>3. מצבים נוספים:</label>
-    <input type="checkbox" id="chronic"> מגבלה רפואית/התפתחותית קבועה<br>
-    <input type="checkbox" id="mental"> מגבלה נפשית<br>
-    <input type="checkbox" id="terror"> נפגע איבה<br>
-    <input type="checkbox" id="caregiver"> מלווה קבוע של בן משפחה מאושפז<br>
-  </div>
-
-  <button onclick="checkRights()">בדוק זכויות</button>
-
-  <div class="result" id="result"></div>
+  <h1>שאלון זכויות</h1>
+  <textarea id="result" rows="10" cols="50">קצבת ילד נכה
+תג חניה לנכה
+נכות כללית
+השאלת ציוד שיקומי</textarea>
+  <br><br>
+  <button onclick="generatePDF()">ייצא ל-PDF בעברית</button>
 
   <script>
-    function checkRights() {
-      const age = document.getElementById('age').value;
-      const func = document.getElementById('function').value;
-      const chronic = document.getElementById('chronic').checked;
-      const mental = document.getElementById('mental').checked;
-      const terror = document.getElementById('terror').checked;
-      const caregiver = document.getElementById('caregiver').checked;
-
-      let output = "<h3>הזכויות האפשריות למטופל:</h3><ul>";
-
-      if (age === 'child') {
-        if (chronic) output += "<li>קצבת ילד נכה (ביטוח לאומי)</li>";
-        if (func !== 'none') output += "<li>קצבת ניידות (ביטוח לאומי, משרד הבריאות)</li><li>תג חניה לנכה (משרד התחבורה)</li>";
-        if (func === 'full') output += "<li>העסקת עובד זר (רשות האוכלוסין וההגירה)</li>";
-        output += "<li>השאלת מכשור רפואי שיקומי (קופות חולים, עמותות)</li>";
-        if (caregiver) output += "<li>החזר הוצאות נלוות, חופשת מחלה למלווה (ביטוח לאומי, מקום עבודה)</li>";
-      }
-
-      if (age === 'adult') {
-        output += "<li>ניידות (ביטוח לאומי, משרד הבריאות)</li><li>תג חניה לנכה (משרד התחבורה)</li>";
-        if (func === 'full') output += "<li>העסקת עובד זר (רשות האוכלוסין וההגירה)</li>";
-        output += "<li>השאלת ציוד שיקומי (קופות חולים, עמותות)</li>";
-        if (chronic) output += "<li>נכות כללית (ביטוח לאומי)</li>";
-        if (func !== 'none') output += "<li>שירותים מיוחדים (ביטוח לאומי)</li>";
-        if (mental) output += "<li>סל שיקום (משרד הבריאות)</li>";
-        if (caregiver) output += "<li>החזר הוצאות נלוות, חופשת מחלה למלווה (ביטוח לאומי, מקום עבודה)</li>";
-      }
-
-      if (age === 'senior') {
-        output += "<li>תג חניה לנכה (משרד התחבורה)</li>";
-        if (func !== 'none') output += "<li>גמלת סיעוד (ביטוח לאומי)</li><li>קוד אשפוז סיעודי (משרד הבריאות)</li>";
-        if (func === 'full') output += "<li>העסקת עובד זר (רשות האוכלוסין וההגירה)</li>";
-        output += "<li>השאלת ציוד שיקומי (קופות חולים, עמותות)</li>";
-        if (caregiver) output += "<li>החזר הוצאות נלוות, חופשת מחלה למלווה (ביטוח לאומי, מקום עבודה)</li>";
-      }
-
-      if (terror) output += "<li>נפגעי איבה – הכרה ופיצויים (ביטוח לאומי, משרד הביטחון)</li>";
-
-      output += "</ul>";
-      document.getElementById('result').innerHTML = output;
-    }
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>
-    async function exportToPDF() {
+    async function generatePDF() {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const resultHtml = document.getElementById("result").innerText;
-      const lines = resultHtml.split('\n');
-      let y = 10;
-      doc.setFont("helvetica", "normal");
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const hebText = document.getElementById('result').value;
+
+      // הפוך את הטקסט לימין לשמאל
+      const lines = hebText.split('\n').map(line => line.split('').reverse().join(''));
+
+      doc.setFont('helvetica');
+      doc.setFontSize(14);
+
+      let y = 20;
       lines.forEach(line => {
-        doc.text(line, 10, y);
+        doc.text(line, 180, y, { align: 'right' });
         y += 10;
       });
-      doc.save("זכויות_למטופל.pdf");
+
+      doc.save('זכויות_למטופל.pdf');
     }
   </script>
-
-  <div style="text-align:center; margin-top: 20px;">
-    <button onclick="exportToPDF()">ייצא לפורמט PDF</button>
-  </div>
 </body>
 </html>
